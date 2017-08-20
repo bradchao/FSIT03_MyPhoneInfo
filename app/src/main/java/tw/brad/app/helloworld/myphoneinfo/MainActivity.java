@@ -4,7 +4,10 @@ import android.Manifest;
 import android.content.ContentResolver;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.provider.ContactsContract;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -15,11 +18,14 @@ import android.telephony.PhoneStateListener;
 import android.telephony.ServiceState;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+import android.widget.ImageView;
 
+import java.io.File;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private TelephonyManager tmgr;
+    private ImageView img;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,14 +33,15 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.READ_PHONE_STATE)
+                Manifest.permission.READ_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED ) {
             Log.i("brad", "B");
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.READ_PHONE_STATE,
                             Manifest.permission.READ_PHONE_NUMBERS,
                             Manifest.permission.READ_CONTACTS,
-                            Manifest.permission.READ_CALL_LOG
+                            Manifest.permission.READ_CALL_LOG,
+                            Manifest.permission.READ_EXTERNAL_STORAGE
                     },
                     1);
         }else{
@@ -44,6 +51,8 @@ public class MainActivity extends AppCompatActivity {
 
     }
     private void init(){
+        img = (ImageView)findViewById(R.id.img);
+
         tmgr = (TelephonyManager)getSystemService(TELEPHONY_SERVICE);
         String deviceid = tmgr.getDeviceId();
         Log.i("brad", deviceid);
@@ -63,11 +72,18 @@ public class MainActivity extends AppCompatActivity {
                 new String[]{ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
                         ContactsContract.CommonDataKinds.Phone.NUMBER},null,null,null);
         Log.i("brad", "count:" + c.getCount());
-        while (c.moveToNext()){
-            String name = c.getString(0); //c.getString(c.getColumnIndex(""));
-            String tel = c.getString(1); //c.getString(c.getColumnIndex(""));
-            Log.i("brad", name + ":" + tel);
-        }
+//        while (c.moveToNext()){
+//            String name = c.getString(0); //c.getString(c.getColumnIndex(""));
+//            String tel = c.getString(1); //c.getString(c.getColumnIndex(""));
+//            Log.i("brad", name + ":" + tel);
+//        }
+
+
+        Cursor c2 = cr.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, null, null, null, null);
+        c2.moveToLast();
+        String file = c2.getString(c2.getColumnIndexOrThrow(MediaStore.Images.Media.DATA));
+        Bitmap bmp = BitmapFactory.decodeFile(file);
+        img.setImageBitmap(bmp);
 
 
     }
