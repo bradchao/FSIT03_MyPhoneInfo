@@ -6,6 +6,7 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.provider.CallLog;
 import android.provider.ContactsContract;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
@@ -21,6 +22,7 @@ import android.util.Log;
 import android.widget.ImageView;
 
 import java.io.File;
+import java.util.Date;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -84,6 +86,45 @@ public class MainActivity extends AppCompatActivity {
         String file = c2.getString(c2.getColumnIndexOrThrow(MediaStore.Images.Media.DATA));
         Bitmap bmp = BitmapFactory.decodeFile(file);
         img.setImageBitmap(bmp);
+
+        Cursor c3 = cr.query(CallLog.Calls.CONTENT_URI, null, null, null, null);
+        while (c3.moveToNext()){
+            int number = c3.getColumnIndex(CallLog.Calls.NUMBER);
+            int type = c3.getColumnIndex(CallLog.Calls.TYPE);
+            int date = c3.getColumnIndex(CallLog.Calls.DATE);
+            String strNumber = c3.getString(number);
+            int intType = c3.getInt(type);
+            String strDate = c3.getString(date);
+
+            Date date1 = new Date(Long.parseLong(strDate));
+            int hh = date1.getHours();
+            int mm = date1.getMinutes();
+            int ss = date1.getSeconds();
+            String hms = hh+":"+mm+":"+ss;
+
+
+
+
+            switch(intType){
+                case CallLog.Calls.INCOMING_TYPE:
+                    Log.i("brad", strNumber + " : " + hms);
+                    break;
+                case CallLog.Calls.MISSED_TYPE:
+                    Log.i("brad", strNumber + " : " + hms);
+                    break;
+                case CallLog.Calls.OUTGOING_TYPE:
+                    Log.i("brad", strNumber + " : " + hms);
+                    break;
+                case CallLog.Calls.REJECTED_TYPE:
+                    Log.i("brad", strNumber + " : " + hms);
+                    break;
+                default:
+                    Log.i("brad", strNumber + " : " + hms);
+                    break;
+            }
+
+
+        }
 
 
     }
